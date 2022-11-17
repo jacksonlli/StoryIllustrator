@@ -1,5 +1,5 @@
-./illustrator/stable_diffusion/checkpoints
-./outputs
+illustrator/stable_diffusion/checkpoints
+outputs
 *.egg-info
 *.pyc
 logs
