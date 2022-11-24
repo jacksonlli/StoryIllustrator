@@ -101,6 +101,7 @@ semver==2.13.0
 six @ file:///tmp/build/80754af9/six_1644875935023/work
 smmap==5.0.0
 soundfile @ file:///home/conda/feedstock_root/build_artifacts/pysoundfile_1665058838115/work
+srt==3.5.2
 -e git+https://github.com/jacksonlli/stable-diffusion@a1fcaad4a96cc36afa56c3b25db9fa558ee6da64#egg=stable_diffusion
 streamlit==1.14.1
 tensorboard==2.11.0
@@ -118,7 +119,7 @@ torchaudio==0.13.0
 torchmetrics==0.6.0
 torchvision==0.14.0
 tornado==6.2
-tortoise==2.4.2
+-e git+https://github.com/neonbjb/tortoise-tts.git@121b0e9e9c57ad8821d0d15fdcd19a4b1010d946#egg=TorToiSe
 tqdm==4.64.1
 transformers==4.19.2
 typing-extensions==4.4.0
