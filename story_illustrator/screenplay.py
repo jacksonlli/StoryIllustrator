@@ -2,16 +2,25 @@ from nltk.tokenize import sent_tokenize
 
 
 class Screenplay:
-    def __init__(self, text):
+    def __init__(self, text, title=None):
         if text[-4:] == ".txt":
             with open(text, "r", encoding="utf-8-sig") as t:
                 text = t.read()
+        if title:
+            if title[-4:] == ".txt":
+                with open(title, "r", encoding="utf-8-sig") as t:
+                    title = t.read()
         self.text = text
+        self.title = title
         self._sentences = None
 
     @property
     def sentences(self):
-        return self._sentences if self._sentences else self.tokenize_sentences()
+        if not self._sentences:
+            self._sentences = self.tokenize_sentences()
+            if self.title:
+                self._sentences = [self.title] + self._sentences
+        return self._sentences
 
     @sentences.setter
     def sentences(self, values):

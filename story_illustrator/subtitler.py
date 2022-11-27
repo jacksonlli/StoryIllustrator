@@ -18,7 +18,7 @@ class Subtitler:
             )
 
     def create_srt(
-        self, tokens, timestamp_mapping: Dict, filename: str = "subtitles.srt"
+        self, tokens, timestamp_mapping: Dict, filename: str = "subtitles.srt", skip_first: str = False
     ):
         start_time = timedelta(seconds=0)
         subs = []
@@ -29,6 +29,9 @@ class Subtitler:
                 Subtitle(index=i + 1, start=start_time, end=end_time, content=token)
             )
             start_time = end_time
+
+        if skip_first:
+            subs[0].content = ""
 
         srt_string = compose(subs)
         os.makedirs(self.output_directory, exist_ok=True)

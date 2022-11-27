@@ -3,3 +3,4 @@ outputs
 *.egg-info
 *.pyc
 logs
+inputs

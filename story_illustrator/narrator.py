@@ -21,6 +21,9 @@ class Narrator:
         self.quality = quality
         self.tts = TextToSpeech()
 
+    def process_token(self, token):
+        return token.replace('[WP]', 'Writing prompt')
+
     def narrate(self, tokens, voice=None, selection_range=None):
         if not voice:
             voice = self.voice
@@ -32,23 +35,24 @@ class Narrator:
                 continue
             start_time = time.time()
             out_subdir = os.path.join(
-                self.output_directory, "-".join([str(i), token[:150].replace('"', "").replace('.', "")])
+                self.output_directory,
+                "-".join([str(i), token[:150].replace('"', "").replace(".", "")]),
             )
             os.makedirs(out_subdir, exist_ok=True)
             print(f"Narrating: {i+1}/{len(tokens)}-----------------------")
             gen = self.tts.tts_with_preset(
-                token,
+                self.process_token(token),
                 voice_samples=voice_samples,
                 conditioning_latents=conditioning_latents,
                 preset=self.quality,
             )
-            wav_file_path = os.path.join(
-                out_subdir, f"{voice}.wav".replace('"', "").replace('.', "")
-            ).replace('"', "")
+            wav_file_path = os.path.join(out_subdir, f"{voice}.wav").replace('"', "")
             torchaudio.save(wav_file_path, gen.squeeze(0).cpu(), 24000)
             (source_rate, source_sig) = wav.read(wav_file_path)
             duration_seconds = len(source_sig) / float(source_rate)
-            with open(os.path.join(out_subdir, "info.json"), "w") as outfile:
+            with open(
+                os.path.join(out_subdir, "info.json"), "w", encoding="utf-8"
+            ) as outfile:
                 json.dump(
                     {
                         "token": token,
