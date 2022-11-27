@@ -17,7 +17,7 @@ class VideoEditor:
         narration_directory,
         subtitle_srt,
         timestamp_mapping,
-        title_image = None,
+        title_image=None,
         text_font="Georgia-Regular",
         text_size=24,
         text_color="white",
@@ -55,9 +55,13 @@ class VideoEditor:
         if self.title_image:
             margin = 20
             title_image_clip = ImageClip(self.title_image)
-            if title_image_clip.w > image_clips[0].w - 2*margin:
-                title_image_clip = title_image_clip.resize((image_clips[0].w-2*margin)/title_image_clip.w)
-            image_clips[0] = CompositeVideoClip([image_clips[0], title_image_clip.set_pos(("center", "center"))]).set_duration(image_clips[0].duration)
+            if title_image_clip.w > image_clips[0].w - 2 * margin:
+                title_image_clip = title_image_clip.resize(
+                    (image_clips[0].w - 2 * margin) / title_image_clip.w
+                )
+            image_clips[0] = CompositeVideoClip(
+                [image_clips[0], title_image_clip.set_pos(("center", "center"))]
+            ).set_duration(image_clips[0].duration)
         return concatenate_videoclips(image_clips, method="compose")
 
     def generate_narration_clip(self):

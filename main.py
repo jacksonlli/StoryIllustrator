@@ -36,20 +36,23 @@ title_image = (
 
 sp = Screenplay(text=text, title=title)
 # creates pngs
-# Illustrator(
-#     output_directory=os.path.join(output_directory, "illustrations"),
-#     width=384,
-#     height=704,
-# ).illustrate(sp.sentences, n_samples=1)
+Illustrator(
+    output_directory=os.path.join(output_directory, "illustrations"),
+    width=384,
+    height=704,
+).illustrate(sp.sentences, n_samples=1)
+
 # creates wavs
-# Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
-#     sp.sentences
-# )
+Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
+    sp.sentences
+)
+
 # creates srt
 timestamp_mapping = get_timestamp_mapping(os.path.join(output_directory, "narrations"))
-# Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
-#     sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
-# )
+Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
+    sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
+)
+
 # creates mp4
 VideoEditor(
     video_output_path=output_directory,
@@ -57,7 +60,7 @@ VideoEditor(
     narration_directory=os.path.join(output_directory, "narrations"),
     subtitle_srt=os.path.join(output_directory, "subtitles", "subtitles.srt"),
     timestamp_mapping=timestamp_mapping,
-    title_image = title_image,
+    title_image=title_image,
     text_font="Consolas-Bold",
     text_size=40,
     text_color="white",

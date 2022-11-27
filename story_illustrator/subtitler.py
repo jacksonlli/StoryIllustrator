@@ -18,7 +18,11 @@ class Subtitler:
             )
 
     def create_srt(
-        self, tokens, timestamp_mapping: Dict, filename: str = "subtitles.srt", skip_first: str = False
+        self,
+        tokens,
+        timestamp_mapping: Dict,
+        filename: str = "subtitles.srt",
+        skip_first: str = False,
     ):
         start_time = timedelta(seconds=0)
         subs = []

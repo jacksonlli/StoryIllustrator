@@ -22,7 +22,7 @@ class Narrator:
         self.tts = TextToSpeech()
 
     def process_token(self, token):
-        return token.replace('[WP]', 'Writing prompt')
+        return token.replace("[WP]", "Writing prompt")
 
     def narrate(self, tokens, voice=None, selection_range=None):
         if not voice:
