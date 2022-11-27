@@ -13,7 +13,7 @@ def get_timestamp_mapping(directory):
         for file in os.scandir(subdir):
             if file.name == "info.json":
                 with open(file.path, "r") as f:
-                    mapping[subdir.name.split("-")[0]] = json.load(f)
+                    mapping[int(subdir.name.split("-")[0])] = json.load(f)
                 break
     return mapping
 
@@ -36,22 +36,22 @@ title_image = (
 
 sp = Screenplay(text=text, title=title)
 # creates pngs
-Illustrator(
-    output_directory=os.path.join(output_directory, "illustrations"),
-    width=384,
-    height=704,
-).illustrate(sp.sentences, n_samples=1)
+# Illustrator(
+#     output_directory=os.path.join(output_directory, "illustrations"),
+#     width=704,
+#     height=384,
+# ).illustrate(sp.sentences, n_samples=1)
 
 # creates wavs
-Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
-    sp.sentences
-)
+# Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
+#     sp.sentences
+# )
 
 # creates srt
 timestamp_mapping = get_timestamp_mapping(os.path.join(output_directory, "narrations"))
-Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
-    sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
-)
+# Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
+#     sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
+# )
 
 # creates mp4
 VideoEditor(
@@ -65,4 +65,5 @@ VideoEditor(
     text_size=40,
     text_color="white",
     text_stroke_width=2,
+    speed = 1.05
 ).generate()

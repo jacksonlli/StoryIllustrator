@@ -8,13 +8,12 @@ class Subtitler:
     def __init__(self, output_directory):
         self.output_directory = output_directory
 
-    def get_token_duration(self, token, timestamp_mapping):
-        i = sorted(timestamp_mapping.keys())[0]
-        if token == timestamp_mapping[i]["token"]:
-            return timestamp_mapping.pop(i)["duration"]
+    def get_token_duration(self, token, info):
+        if token == info["token"]:
+            return info["duration"]
         else:
             raise Exception(
-                f'token not the same! {token} <subtitle> vs {timestamp_mapping[i]["token"]} <mapping>'
+                f'token not the same! {token} <subtitle> vs {info["token"]} <mapping>'
             )
 
     def create_srt(
@@ -27,7 +26,7 @@ class Subtitler:
         start_time = timedelta(seconds=0)
         subs = []
         for i, token in enumerate(tokens):
-            token_duration = self.get_token_duration(token, timestamp_mapping)
+            token_duration = self.get_token_duration(token, timestamp_mapping[i])
             end_time = start_time + timedelta(seconds=token_duration)
             subs.append(
                 Subtitle(index=i + 1, start=start_time, end=end_time, content=token)

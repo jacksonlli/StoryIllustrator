@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import math
 import torchaudio
 import scipy.io.wavfile as wav
 
@@ -34,9 +35,14 @@ class Narrator:
             if selection_range and i not in selection_range:
                 continue
             start_time = time.time()
+            invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*', '\n']
+            subdir_name = token[:150]
+            for ch in invalid_chars:
+                subdir_name = subdir_name.replace(ch, '')
+
             out_subdir = os.path.join(
                 self.output_directory,
-                "-".join([str(i), token[:150].replace('"', "").replace(".", "")]),
+                "-".join([str(i).zfill(int(math.log10(len(tokens)))), subdir_name]),
             )
             os.makedirs(out_subdir, exist_ok=True)
             print(f"Narrating: {i+1}/{len(tokens)}-----------------------")

@@ -2,11 +2,12 @@ import os
 import json
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.audio.AudioClip import CompositeAudioClip
-from moviepy.editor import concatenate_videoclips, concatenate_audioclips
+from moviepy.editor import concatenate_videoclips, concatenate_audioclips, vfx
 from moviepy.video.VideoClip import TextClip, ImageClip
 from moviepy.video.tools.subtitles import SubtitlesClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
+from moviepy.audio.fx.all import volumex
 
 
 class VideoEditor:
@@ -23,6 +24,7 @@ class VideoEditor:
         text_color="white",
         text_stroke_width=3,
         text_stroke_color="black",
+        speed=1.0
     ):
         self.video_output_path = video_output_path
         self.illustration_directory = illustration_directory
@@ -35,6 +37,7 @@ class VideoEditor:
         self.text_color = text_color
         self.text_stroke_width = text_stroke_width
         self.text_stroke_color = text_stroke_color
+        self.speed = speed
 
     def get_files(self, directory, file_type):
         files = []
@@ -50,7 +53,7 @@ class VideoEditor:
         image_clips = []
         for i, img in enumerate(illustrations):
             image_clips.append(
-                ImageClip(img).set_duration(self.timestamp_mapping[str(i)]["duration"])
+                ImageClip(img).set_duration(self.timestamp_mapping[i]["duration"])
             )
         if self.title_image:
             margin = 20
@@ -66,7 +69,8 @@ class VideoEditor:
 
     def generate_narration_clip(self):
         narrations = self.get_files(self.narration_directory, "wav")
-        return concatenate_audioclips([AudioFileClip(wav) for wav in narrations])
+        narration_clip = concatenate_audioclips([AudioFileClip(wav) for wav in narrations])
+        return volumex(narration_clip, 2)
 
     def generate(self):
         image_clip = self.generate_image_clip()
@@ -85,6 +89,7 @@ class VideoEditor:
         audio_clip = self.generate_narration_clip()
         final = CompositeVideoClip([image_clip, sub_clip.set_pos(("center", "center"))])
         final.audio = audio_clip
+        final = final.fx(vfx.speedx, self.speed)
         final.write_videofile(
             self.video_output_path
             if self.video_output_path.split(".")[-1] == "mp4"
