@@ -1,0 +1,11 @@
+input_text_directory: inputs\text.txt
+output_directory: outputs\siren
+image_width: 512
+image_height: 512
+# title: None
+# title_image: inputs/title_img.png
+character_descriptions:
+  Errol: Dark-haired male captain
+image_style_prompt: highly detailed digital artwork, intricate, trending on artstation, by WLOP and Greg Rutkowski and Alphonse Mucha, 100mm
+image_negative_prompt: duplicate, morbid, mutilated, out of frame, extra fingers, mutated hand, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers
+stable_diffusion_model: C:\Users\jawk\OneDrive\Documents\GitHub\stable-diffusion\stable_diffusion\checkpoints\protogenX34OfficialR_1.ckpt
