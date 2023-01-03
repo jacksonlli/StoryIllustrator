@@ -12,6 +12,7 @@ class Screenplay:
                     title = t.read()
         self.text = text
         self.title = title
+        self.full_text = self.title + ". " + self.text if self.title else self.text
         self._sentences = None
 
     @property
@@ -35,5 +36,11 @@ class Screenplay:
         """
         Returns: List of strings
         """
-        self.sentences = sent_tokenize(self.text)
-        return self.sentences
+        text = self.text.replace("“", '"').replace("”", '"')
+        sentences = []
+        split_delimiters = ["; ", "| " "\n"]
+        for delim in split_delimiters:
+            text = text.replace(delim, "|")
+        for sub_text in text.split("|"):
+            sentences += sent_tokenize(sub_text)
+        return sentences

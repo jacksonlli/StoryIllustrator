@@ -5,5 +5,15 @@ setup(
     version="0.0.1",
     description="",
     packages=find_packages(),
-    install_requires=["torch", "numpy", "tqdm", "nltk", "srt", "moviepy"],
+    install_requires=[
+        "torch",
+        "numpy",
+        "tqdm",
+        "nltk",
+        "srt",
+        "moviepy",
+        "spacy",
+        "pattern",
+        "omegaconf",
+    ],
 )

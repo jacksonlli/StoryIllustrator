@@ -24,7 +24,7 @@ class VideoEditor:
         text_color="white",
         text_stroke_width=3,
         text_stroke_color="black",
-        speed=1.0
+        speed=1.0,
     ):
         self.video_output_path = video_output_path
         self.illustration_directory = illustration_directory
@@ -69,7 +69,9 @@ class VideoEditor:
 
     def generate_narration_clip(self):
         narrations = self.get_files(self.narration_directory, "wav")
-        narration_clip = concatenate_audioclips([AudioFileClip(wav) for wav in narrations])
+        narration_clip = concatenate_audioclips(
+            [AudioFileClip(wav) for wav in narrations]
+        )
         return volumex(narration_clip, 2)
 
     def generate(self):
