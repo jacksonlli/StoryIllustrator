@@ -68,7 +68,6 @@ class Illustrator:
                 self.output_directory,
                 "-".join([str(i).zfill(int(math.log10(len(tokens)) + 1)), subdir_name]),
             )
-
             prompt = self._prompt_engineering(token)
             print(f"Illustrating: {i+1}/{len(tokens)}-----------------------")
             txt2img(
@@ -97,7 +96,6 @@ class Illustrator:
                 os.path.join(out_subdir, "info.json"), "w", encoding="utf-8"
             ) as outfile:
                 json.dump(info_dict, outfile)
-
 
     def _split_sentence(self, token):
         doc = self.nlp(token)
