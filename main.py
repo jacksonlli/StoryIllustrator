@@ -29,41 +29,52 @@ title_image = conf.get("title_image", None)
 
 sp = Screenplay(text=text, title=title)
 
-# creates pngs
-Illustrator(
-    output_directory=os.path.join(output_directory, "illustrations"),
-    width=conf["image_width"],
-    height=conf["image_height"],
-    sentences=sp.sentences,
-    n_samples=int(conf.get("num_alternative_images", 0)) + 1,
-    character_descriptions=conf.get("character_descriptions", None),
-    style_prompt=conf.get("image_style_prompt", ""),
-    negative_prompt=conf.get("image_negative_prompt", None),
-    ckpt=conf.get("stable_diffusion_model", None),
-).illustrate()
+if conf.get('illustrations', False):
+    # creates pngs
+    Illustrator(
+        output_directory=os.path.join(output_directory, "illustrations"),
+        width=conf["image_width"],
+        height=conf["image_height"],
+        sentences=sp.sentences,
+        n_samples=int(conf.get("num_alternative_images", 0)) + 1,
+        character_descriptions=conf.get("character_descriptions", None),
+        style_prompt=conf.get("image_style_prompt", ""),
+        negative_prompt=conf.get("image_negative_prompt", None),
+        prefix_prompt=conf.get("image_prefix_prompt", None),
+        ckpt=conf.get("stable_diffusion_model", None),
+        illustration_kwargs=conf.get('illustration_kwargs', {
+            'plms': False,
+            'ddim_steps':30,
+            'scale': 10,
+        }),
+        real_ersgan_executable_path=conf.get("real_ersgan_executable", None),
+        gfpgan_model=conf.get("gfpgan_model", None)
+    ).illustrate()
 
-# # creates wavs
-# Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
-#     sp.sentences, voice='jackson'
-# )
+if conf.get('narration', False):
+    # creates wavs
+    Narrator(output_directory=os.path.join(output_directory, "narrations")).narrate(
+        sp.sentences, voice='train_dotrice'
+    )
+    timestamp_mapping = get_timestamp_mapping(os.path.join(output_directory, "narrations"))
 
 # # creates srt
-# timestamp_mapping = get_timestamp_mapping(os.path.join(output_directory, "narrations"))
-# Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
-#     sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
-# )
+if conf.get('subtitles', False):
+    Subtitler(output_directory=os.path.join(output_directory, "subtitles")).create_srt(
+        sp.sentences, timestamp_mapping.copy(), skip_first=True if title_image else False
+    )
 
-# # creates mp4
-# VideoEditor(
-#     video_output_path=output_directory,
-#     illustration_directory=os.path.join(output_directory, "illustrations"),
-#     narration_directory=os.path.join(output_directory, "narrations"),
-#     subtitle_srt=os.path.join(output_directory, "subtitles", "subtitles.srt"),
-#     timestamp_mapping=timestamp_mapping,
-#     title_image=title_image,
-#     text_font="Consolas-Bold",
-#     text_size=40,
-#     text_color="white",
-#     text_stroke_width=2,
-#     speed = 1.05
-# ).generate()
+# creates mp4
+VideoEditor(
+    video_output_path=output_directory,
+    illustration_directory=os.path.join(output_directory, "illustrations"),
+    narration_directory=os.path.join(output_directory, "narrations"),
+    subtitle_srt=os.path.join(output_directory, "subtitles", "subtitles.srt") if conf.get('subtitles', False) else None,
+    timestamp_mapping=timestamp_mapping,
+    title_image=title_image,
+    text_font="Consolas-Bold",
+    text_size=60,
+    text_color="white",
+    text_stroke_width=3,
+    speed = 0.95
+).generate()

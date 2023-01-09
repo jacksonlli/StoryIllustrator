@@ -16,8 +16,8 @@ class VideoEditor:
         video_output_path,
         illustration_directory,
         narration_directory,
-        subtitle_srt,
         timestamp_mapping,
+        subtitle_srt=None,
         title_image=None,
         text_font="Georgia-Regular",
         text_size=24,
@@ -75,24 +75,23 @@ class VideoEditor:
         return volumex(narration_clip, 2)
 
     def generate(self):
-        image_clip = self.generate_image_clip()
-        text_generator = lambda txt: TextClip(
-            txt,
-            font=self.text_font,
-            fontsize=self.text_size,
-            color=self.text_color,
-            stroke_width=self.text_stroke_width,
-            stroke_color=self.text_stroke_color,
-            method="caption",
-            align="center",
-            size=image_clip.size,
-        )
-        sub_clip = SubtitlesClip(self.subtitle_srt, text_generator)
+        vid = self.generate_image_clip()
+        
+        if self.subtitle_srt:
+            text_generator = lambda txt: TextClip(
+                txt,
+                font=self.text_font,
+                fontsize=self.text_size,
+                color=self.text_color,
+                stroke_width=self.text_stroke_width,
+                stroke_color=self.text_stroke_color,
+            )
+            sub_clip = SubtitlesClip(self.subtitle_srt, text_generator)
+            vid = CompositeVideoClip([vid, sub_clip.set_position(('center',0.8), relative=True)])
         audio_clip = self.generate_narration_clip()
-        final = CompositeVideoClip([image_clip, sub_clip.set_pos(("center", "center"))])
-        final.audio = audio_clip
-        final = final.fx(vfx.speedx, self.speed)
-        final.write_videofile(
+        vid.audio = audio_clip
+        vid = vid.fx(vfx.speedx, self.speed)
+        vid.write_videofile(
             self.video_output_path
             if self.video_output_path.split(".")[-1] == "mp4"
             else os.path.join(self.video_output_path, "video.mp4"),

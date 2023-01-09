@@ -27,7 +27,10 @@ class Illustrator:
         tokenization_length=20,
         style_prompt="highly detailed digital artwork, intricate, trending on artstation, by WLOP and Greg Rutkowski and Alphonse Mucha, 100mm",
         negative_prompt="duplicate, morbid, mutilated, out of frame, extra fingers, mutated hand, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers",
+        prefix_prompt="photo of the most beautiful artwork in the world featuring ",
         ckpt=None,
+        real_ersgan_executable_path=None,
+        gfpgan_model=None,
     ):
         self.output_directory = output_directory
         self.sentences = sentences
@@ -42,17 +45,21 @@ class Illustrator:
         self.tokenization_length = tokenization_length
         self.style_prompt = style_prompt
         self.negative_prompt = negative_prompt
+        self.prefix_prompt = prefix_prompt
         self.ckpt = ckpt
+        self.real_ersgan_executable_path=real_ersgan_executable_path
+        self.gfpgan_model = gfpgan_model
         self.nlp = spacy.load("en_core_web_sm")
         os.makedirs(output_directory, exist_ok=True)
 
     def illustrate(self):
-        tokens = self._tokenize()
+        # tokens = self._tokenize()
+        tokens = self.sentences
         for i, token in enumerate(tokens):
             if self.selection_range and i not in self.selection_range:
                 continue
             start_time = time.time()
-            invalid_chars = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\n"]
+            invalid_chars = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\n", ".", "’"]
             subdir_name = token[:150]
             for ch in invalid_chars:
                 subdir_name = subdir_name.replace(ch, "")
@@ -61,6 +68,7 @@ class Illustrator:
                 self.output_directory,
                 "-".join([str(i).zfill(int(math.log10(len(tokens)) + 1)), subdir_name]),
             )
+
             prompt = self._prompt_engineering(token)
             print(f"Illustrating: {i+1}/{len(tokens)}-----------------------")
             txt2img(
@@ -72,8 +80,12 @@ class Illustrator:
                 W=self.width,
                 optimize=False,
                 ckpt=self.ckpt,
+                real_ersgan_executable_path=self.real_ersgan_executable_path,
+                gfpgan_model=self.gfpgan_model,
+                only_keep_final=True,
                 **self.illustration_kwargs,
             )
+
             info_dict = {
                 "token": token,
                 "prompt": prompt,
@@ -86,6 +98,7 @@ class Illustrator:
             ) as outfile:
                 json.dump(info_dict, outfile)
 
+
     def _split_sentence(self, token):
         doc = self.nlp(token)
         if len(doc) >= self.tokenization_length:
@@ -93,7 +106,7 @@ class Illustrator:
             split_indexes = []
             split_candidate = None
             for i, sub_tok in enumerate(doc):
-                if sub_tok.dep_ in ["cc", "punct"]:
+                if sub_tok.dep_ in ["punct"]:  # "cc", 
                     split_candidate = i
                 elif sub_tok.dep_ == "nsubj":
                     if subject_found and split_candidate:
@@ -165,14 +178,16 @@ class Illustrator:
             token = token.replace(character, descr)
         return token
 
-    def _prompt_engineering(self, token, remove_dialogue=True):
+    def _prompt_engineering(self, token):
         # remove dialogue
         if self.remove_dialogue:
             token = re.sub('"[^"]*?[!.?]"', "", token)
         token = self.replace_characters_by_description(token)
         # add style
         return (
-            self._get_gender(token)
+            self.prefix_prompt
+            + " "
+            + self._get_gender(token)
             + ", "
             + self._key_word_redudancy(token)
             + ", "
