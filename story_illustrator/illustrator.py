@@ -10,7 +10,7 @@ from pattern.en import conjugate
 
 # from stable_diffusion.optimizedSD.optimized_txt2img import main as txt2img
 from stable_diffusion.scripts.txt2img import main as txt2img
-
+from story_illustrator.utils import create_subdir_name
 
 class Illustrator:
     def __init__(
@@ -50,26 +50,27 @@ class Illustrator:
         self.real_ersgan_executable_path=real_ersgan_executable_path
         self.gfpgan_model = gfpgan_model
         self.nlp = spacy.load("en_core_web_sm")
+        self.scene_setting = ""
         os.makedirs(output_directory, exist_ok=True)
 
     def illustrate(self):
         # tokens = self._tokenize()
         tokens = self.sentences
-        for i, token in enumerate(tokens):
+        i = -1
+        for token in tokens:
+            i += 1
             if self.selection_range and i not in self.selection_range:
                 continue
+            elif '[SET:' in token:
+                self.scene_setting = re.search(r'\\?\[SET:\W?(.*?)\\?\]\n?', token).groups()[0]
+                token = re.sub(r'\\?\[SET:\W?(.*?)\\?\]\n?', "", token)
+                if token == "":
+                    i -= 1
+                    continue
             start_time = time.time()
-            invalid_chars = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\n", ".", "’"]
-            subdir_name = token[:150]
-            for ch in invalid_chars:
-                subdir_name = subdir_name.replace(ch, "")
-
-            out_subdir = os.path.join(
-                self.output_directory,
-                "-".join([str(i).zfill(int(math.log10(len(tokens)) + 1)), subdir_name]),
-            )
+            out_subdir = create_subdir_name(token, self.output_directory, i, len(tokens))
             prompt = self._prompt_engineering(token)
-            print(f"Illustrating: {i+1}/{len(tokens)}-----------------------")
+            print(f"Illustrating: {i}/{len(tokens)}-----------------------")
             txt2img(
                 prompt=prompt,
                 negative_prompt=self.negative_prompt,
@@ -158,7 +159,7 @@ class Illustrator:
         doc = self.nlp(token)
         key_words = []
         for sub_tok in doc:
-            if sub_tok.pos_ in ["PROPN", "NOUN"]:
+            if sub_tok.pos_ in ["PROPN", "NOUN", "ADJ"]:
                 key_words.append(sub_tok.text)
             elif sub_tok.pos_ == "VERB":
                 base_verb = sub_tok.lemma_
@@ -174,15 +175,19 @@ class Illustrator:
     def replace_characters_by_description(self, token):
         for character, descr in self.character_descriptions.items():
             token = token.replace(character, descr)
+            token = token.replace(character.upper(), descr)
         return token
 
     def _prompt_engineering(self, token):
         # remove dialogue
+        dialogue = ""
         if self.remove_dialogue:
-            token = re.sub('"[^"]*?[!.?]"', "", token)
+            dialogue_search = re.findall(r'\\?"([^"]*?)[!.?,]\\?"', token)
+            dialogue = " ".join(dialogue_search) if dialogue_search else ""
+            token = re.sub(r'\\?"[^"]*?[!.?,]\\?"', "", token)
         token = self.replace_characters_by_description(token)
-        # add style
-        return (
+        token += ", " + self.scene_setting
+        token = (
             self.prefix_prompt
             + " "
             + self._get_gender(token)
@@ -192,4 +197,7 @@ class Illustrator:
             + token
             + ", "
             + self.style_prompt
+            + ", "
+            + dialogue
         )
+        return token

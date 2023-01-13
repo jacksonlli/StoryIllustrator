@@ -1,14 +1,17 @@
 input_text_directory: inputs\text.txt
-output_directory: outputs\siren3
-image_width: 704
-image_height: 384
-# title: None
+output_directory: outputs\catdog
+title: "[environmental concept art, the moon] The end of the world - An A.I. drawn story."
+
+illustrations: False
+image_width: 384
+image_height: 704
 # title_image: inputs/title_img.png
 character_descriptions:
-  Errol: Dark-haired male captain
+  cat: orange cat
+  dog: scared brown beagle
 image_prefix_prompt: photo of the most beautiful artwork in the world featuring 
 image_style_prompt: intricate, trending on artstation, professional majestic oil painting by WLOP, Ross Tran, Greg Rutkowski, Studio Ghibli, Makoto Shinkai and Alphonse Mucha, trending on CGSociety, high detail, dynamic composition, sharp focus, beautiful and detailed lighting, shadows, 100mm
-image_negative_prompt: posing, duplicate, disfigured, signature, text, morbid, mutilated, out of frame, extra fingers, mutated hand, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers, logo, watermark
+image_negative_prompt: posing, duplicate, disfigured, signature, text, morbid, mutilated, out of frame, extra fingers, multiple heads, mutated hand, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers, logo, watermark
 stable_diffusion_model: C:\Users\jawk\OneDrive\Documents\GitHub\stable-diffusion\stable_diffusion\checkpoints\protogenX34OfficialR_1.ckpt
 real_ersgan_executable: C:\Users\jawk\OneDrive\Documents\GitHub\Real-ESRGAN\realesrgan-ncnn-vulkan.exe
 gfpgan_model: C:\Users\jawk\OneDrive\Documents\GitHub\stable-diffusion\stable_diffusion\checkpoints\GFPGANv1.4.pth
@@ -19,7 +22,20 @@ illustration_kwargs:
   upscale_strength: 0.25
   upscale_steps: 30
   upscale_overlap: 98
-subtitles: False
-illustrations: False
+illustration_remove_dialogue: True
+# illustration_range:
+#   - 0
+#   - 1
+
 narrations: False
-voice: train-dotrice
+# narration_range:
+#   - 0
+#   - 1
+voice: train_grace
+narration_padding: 0.25
+
+create_srt: False
+
+video: True
+use_srt: True
+speed: 1

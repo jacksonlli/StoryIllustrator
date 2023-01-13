@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.audio.AudioClip import CompositeAudioClip
@@ -8,6 +9,8 @@ from moviepy.video.tools.subtitles import SubtitlesClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.audio.fx.all import volumex
+
+from story_illustrator.utils import edit_file_folder_name
 
 
 class VideoEditor:
@@ -25,6 +28,8 @@ class VideoEditor:
         text_stroke_width=3,
         text_stroke_color="black",
         speed=1.0,
+        volume_boost = 1.0,
+        title = "video"
     ):
         self.video_output_path = video_output_path
         self.illustration_directory = illustration_directory
@@ -38,6 +43,8 @@ class VideoEditor:
         self.text_stroke_width = text_stroke_width
         self.text_stroke_color = text_stroke_color
         self.speed = speed
+        self.volume_boost = volume_boost
+        self.title = edit_file_folder_name(re.sub(r'\[.*?\]\W?', "", title))
 
     def get_files(self, directory, file_type):
         files = []
@@ -51,7 +58,7 @@ class VideoEditor:
     def generate_image_clip(self):
         illustrations = self.get_files(self.illustration_directory, "png")
         image_clips = []
-        for i, img in enumerate(illustrations):
+        for i, img in zip(self.timestamp_mapping, illustrations):
             image_clips.append(
                 ImageClip(img).set_duration(self.timestamp_mapping[i]["duration"])
             )
@@ -72,7 +79,7 @@ class VideoEditor:
         narration_clip = concatenate_audioclips(
             [AudioFileClip(wav) for wav in narrations]
         )
-        return volumex(narration_clip, 2)
+        return volumex(narration_clip, self.volume_boost)
 
     def generate(self):
         vid = self.generate_image_clip()
@@ -85,15 +92,18 @@ class VideoEditor:
                 color=self.text_color,
                 stroke_width=self.text_stroke_width,
                 stroke_color=self.text_stroke_color,
+                size = vid.size,
+                method='caption',
+                align='north'
             )
             sub_clip = SubtitlesClip(self.subtitle_srt, text_generator)
-            vid = CompositeVideoClip([vid, sub_clip.set_position(('center',0.8), relative=True)])
+            vid = CompositeVideoClip([vid, sub_clip.set_position(('center', 0.8), relative=True)])
         audio_clip = self.generate_narration_clip()
         vid.audio = audio_clip
         vid = vid.fx(vfx.speedx, self.speed)
         vid.write_videofile(
             self.video_output_path
             if self.video_output_path.split(".")[-1] == "mp4"
-            else os.path.join(self.video_output_path, "video.mp4"),
+            else os.path.join(self.video_output_path, f"{self.title}.mp4"),
             fps=30,
         )

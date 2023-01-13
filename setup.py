@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="story_illustrator",
-    version="0.0.1",
+    version="1.0.1",
     description="",
     packages=find_packages(),
     install_requires=[
@@ -12,7 +12,7 @@ setup(
         "nltk",
         "srt",
         "moviepy",
-        "spacy",
+        "spacy==2.1",
         "pattern",
         "omegaconf",
     ],
